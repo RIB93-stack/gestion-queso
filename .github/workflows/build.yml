@@ -24,37 +24,23 @@ jobs:
           flutter-version: '3.24.5'
           channel: 'stable'
 
+      - name: Clonar y parchear template de Flet
+        run: |
+          git clone --depth 1 --branch 0.24.1 https://github.com/flet-dev/flet-build-template.git /tmp/flet-template
+          echo "===== PUBSPEC ORIGINAL ====="
+          cat /tmp/flet-template/pubspec.yaml
+          echo "===== APLICANDO PARCHE ====="
+          sed -i -E 's/wakelock_plus: *\^*[0-9]+\.[0-9]+\.[0-9]+/wakelock_plus: 1.2.4/' /tmp/flet-template/pubspec.yaml
+          echo "===== PUBSPEC MODIFICADO ====="
+          cat /tmp/flet-template/pubspec.yaml
+
       - name: Instalar Flet
         run: |
           pip install "flet[all]==0.24.1"
 
       - name: Compilar APK
         run: |
-          # Genera el proyecto de Flutter y aplica la corrección
-          python -c "
-import re, subprocess, os
-# Ejecuta flet build para generar la estructura, pero capturamos el error
-# para que no detenga el script.
-subprocess.run(['flet', 'build', 'apk'], capture_output=True, text=True)
-# Buscamos el directorio del proyecto de Flutter
-import glob
-path = glob.glob('/tmp/flet_flutter_build_*/pubspec.yaml')
-if path:
-    pubspec_path = path[0]
-    with open(pubspec_path, 'r') as f:
-        content = f.read()
-    # Añadimos dependency_overrides si no está
-    if 'dependency_overrides:' not in content:
-        override = '\ndependency_overrides:\n  wakelock_plus: 1.2.10\n'
-        content += override
-        with open(pubspec_path, 'w') as f:
-            f.write(content)
-    # Volvemos a ejecutar la compilación, ahora con la corrección aplicada
-    subprocess.run(['flet', 'build', 'apk', '--verbose'], check=True)
-else:
-    print('No se encontró el archivo pubspec.yaml para parchear.')
-    exit(1)
-"
+          flet build apk --verbose --template /tmp/flet-template
 
       - name: Subir APK como artifact
         uses: actions/upload-artifact@v4
