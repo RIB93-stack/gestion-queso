@@ -6,8 +6,16 @@ from datetime import datetime, timedelta
 
 # Ruta escribible compatible con Android y PC
 def _ruta_escribible(nombre):
-    # En Android, el HOME apunta a un directorio privado escribible de la app.
-    # En PC, expanduser("~") apunta a la carpeta del usuario.
+    # Flet en Android define estas variables de entorno con rutas escribibles.
+    for var in ("FLET_APP_STORAGE_DATA", "FLET_APP_STORAGE_TEMP"):
+        base = os.getenv(var)
+        if base:
+            try:
+                os.makedirs(base, exist_ok=True)
+                return os.path.join(base, nombre)
+            except Exception:
+                continue
+    # Fallback para PC
     base = os.path.expanduser("~")
     return os.path.join(base, nombre)
 
