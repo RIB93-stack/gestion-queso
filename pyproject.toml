@@ -1,0 +1,13 @@
+[project]
+name = "gestion-queso"
+version = "1.0.0"
+description = "App para gestionar la producción y ventas de queso"
+authors = [{ name = "J053" }]
+requires-python = ">=3.9"
+wakelock_plus="1.1.10"
+
+[tool.flet]
+product = "Gestión de Queso"
+org = "com.j053"
+bundle_id = "com.j053.gestionqueso"
+icon = "assets/icon.png"
