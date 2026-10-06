@@ -4,7 +4,14 @@ import csv
 import os
 from datetime import datetime, timedelta
 
-DB = "queso_app.db"
+# Ruta escribible compatible con Android y PC
+def _ruta_escribible(nombre):
+    # En Android, el HOME apunta a un directorio privado escribible de la app.
+    # En PC, expanduser("~") apunta a la carpeta del usuario.
+    base = os.path.expanduser("~")
+    return os.path.join(base, nombre)
+
+DB = _ruta_escribible("queso_app.db")
 
 # ================== BASE DE DATOS ==================
 def cx(): return sqlite3.connect(DB)
@@ -291,7 +298,7 @@ def stats():
 # ================== EXPORTAR ==================
 def exportar_csv(nombre, encabezados, filas):
     try:
-        ruta = os.path.join(os.getcwd(), nombre)
+        ruta = _ruta_escribible(nombre)
         with open(ruta, "w", newline="", encoding="utf-8-sig") as f:
             w = csv.writer(f); w.writerow(encabezados); w.writerows(filas)
         return True, ruta
